@@ -87,7 +87,7 @@ In the first exercise you will create a user-assigned management identity (UMI).
 
 ### Exercise 2
 
-In this exercise you will create a custom RBAC role that allows for getting secrets from Azure Key Vault. You will then create a role assignment associating the custom role with the UMI and setting the scope as the resource group.
+In this exercise you will create a custom RBAC role that allows for retreival of secrets from Azure Key Vault. You will then create a role assignment associating the custom role with the UMI and setting the scope as the resource group.
 
 In the artifacts folder of this repository you will find a file named kv-secrets-reader.json which includes a custom RBAC role that will allow the function to retrieve the value of the secret stored in Key Vault. You will need to modify the assignable scopes of this file and subscription YOURSUBSCRIPTIONID for the id of the subscription you deployed the resources into.
 
