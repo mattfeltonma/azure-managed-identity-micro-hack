@@ -25,7 +25,7 @@ Before you begin the exercises, the lab environment must be deployed. The ARM te
 
 Deploy the lab environment by using the Deploy to Azure button below. Note that you must first create the resource group.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmattfeltonma%2Fazure-managed-identity-demo%2Finitial%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmattfeltonma%2Fazure-managed-identity-demo%2Fmain%2Fazuredeploy.json)
 
 ## Test The Function
 
