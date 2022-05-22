@@ -15,10 +15,9 @@ The end state architecture of this demo is pictured below.
 
 ## Prerequisites
 
-1. This demo will require you have sufficient permissions on the subscription to deploy resource groups, resources, and create RBAC Roles and RBAC assignments. It is recommended you do this on a non-production subscription where you hold the Owner role at the subscription level.
+1. This demo will require you have sufficient permissions on the subscription to deploy resource groups, resources, and [create RBAC Roles and RBAC assignments](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview). It is recommended you do this on a non-production subscription where you hold the Owner role at the subscription level.
 
 2. You must have the az CLI commands installed and configured.
-
 
 ## Lab Setup
 
@@ -26,12 +25,15 @@ Before you begin the exercises, the lab environment must be deployed. The ARM te
 
 Deploy the lab environment by using the Deploy to Azure button below. Note that you must first create the resource group.
 
-
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmattfeltonma%2Fazure-managed-identity-demo%2Finitial%2Fazuredeploy.json)
 
 ## Excercises
 
-### Excercise 1
+### Exercise 1
+
+In this exercise you will validate that Function App deployed correctely.
+
+### Exercise 1
 
 In the first exercise you will create a user-assigned management identity (UMI). You will view the properties of the UMI and find its service principal in Azure Active Directory.
 
@@ -39,61 +41,72 @@ In the first exercise you will create a user-assigned management identity (UMI).
 
     **az login**
 
-2. Set az CLI to use the appropriate subscription.Substitute the name of your subscription into the MY_SUBSCRIPTION_NAME placeholder.
+2. Set az CLI to use the appropriate subscription. Enter the name of your subscription into the subscription_name placeholder.
 
-    **az account set --subscription=MY_SUBSCRIPTION_NAME**
+    **az account set --subscription subscription_name**
 
-3. Create the user-assigned managed identity. Subs
-In the Shared Services Virtual Network an Ubuntu (virtual machine) is deployed and is pre-loaded with Azure CLI, kubectl, and Docker. 
+3. There are some variables that will be used throughout the demo. Create a variable for your resource group name. Enter the name of the resource group you created in the placeholder of my-resource-group.
 
-The Workload Virtual Network is deployed with an app, data, and supported services (PaaS services behind Private Endpoints). The workload resource group also contains a user-assigned managed identity which has been given permissions to get and list secrets in a Key Vault instance.
+    **RESOURCE_GROUP_NAME=my-resource-group-name**
 
-Additional features included:
+4. Create the user-assigned managed identity and name it demo-umi. Enter the name of the region you want to deploy the resources into the myregion placeholder. This should be deployed to the same region you deployed the rest of the resources to.
 
-* Azure Bastion provisioned in the hub to provide SSH and RDP (Remote Desktop Protocol) to deployed virtual machines
-* Azure Firewall configured to send diagnostic logs to an instance of Log Analytics Workspace to allow for review of the traffic flowing to and from the Azure Function
-* An Azure Key Vault instance which stores the user configured VM administrator username and password
-* An Azure Key Vault instance for workloads deployed into the workload resource group
-* All instances of Azure Key Vault are deployed with a Private Endpoint
-* All subnets that support Network Security Groups are configured with them
-* Network Security Groups are configured with NSG Flow Logs which are set to an Azure Storage Account and Traffic Analytics
+    **az identity create --name demo-umi --location myregion --resource-group $RESOURCE_GROUP_NAME**
 
-![lab image](images/lab_image.svg)
+    Take a moment and examine the properties returned. The clientId property maps to the appId attribute of the UMI's service principal in Azure AD. The principalId maps to the objectId of the UMI's service principal in Azure AD.
 
-## Prerequisites
-1. You must hold at least the Contributor role within each Azure subscription you configure the template to deploy resources to.
+5. You will now look at the service principal for your managed identity. The most efficient way to locate the service principal in Azure AD is to search using the objectId. Recall that the principalId of the UMI maps to the objectId in Azure AD.
 
-2. Get the object id of the security principal (user, managed identity, service principal) that will have access to the Azure Key Vault instance. This will be used for the keyVaultAdmin parameter of the template.
+    Store the principalId property in a variable.
 
-**az ad user show --id someuser@sometenant.com --query objectId --output tsv**
+    **UMI_OBJECT_ID=$(az identity show --name=demo-umi --resource-group $RESOURCE_GROUP_NAME --query=principalId --output=tsv)**
 
-3. Enable Network Watcher in the region you plan to deploy the resources using the Azure Portal method described in this link. Do not use the CLI option because the templates expect the Network Watcher resource to be named NetworkWatcher_REGION, such as NetworkWatcher_eastus2. The CLI names the resource watcher_REGION such as watcher_eastus2 which will cause the deployment of the environment to fail.
+6. Query Azure AD for the UMI's service principal.
 
-## Installation with Azure Portal
+    **az ad sp show --id=$UMI_OBJECT_ID**
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmattfeltonma%2Fazure-labs%2Fmaster%2Fhub-and-spoke%2Fazuredeploy.json)
+    Review the attributes of the service principal. Notice that the servicePrincipalType is ManagedIdentity.
 
-## Installation with Azure CLI
-1. Set the following variables:
-   * DEPLOYMENT_NAME - The name of the location
-   * DEPLOYMENT_LOCATION - The location to create the deployment
-   * LOCATION - The location to create the resources
-   * ADMIN_USER_NAME - The name to set for the VM administrator username
-   * ADMIN_OBJECT_ID - The object ID of the Azure AD User that will have full permissions on the Key Vault instances
-   * SUBSCRIPTION - The name or id of the subscription you wish to deploy the resources to
-   * ON_PREM_ADDRESS_SPACE - This is an optional parameter that represents on-premises address space
+### Exercise 2
 
-2. Set the CLI to the subscription you wish to deploy the resources to:
+In this exercise you will create a custom RBAC role that allows for getting secrets from Azure Key Vault. You will then create a role assignment associating the custom role with the UMI and setting the scope as the resource group.
 
-   * **az account set --subscription SUBSCRIPTION_ID**
+In the artifacts folder of this repository you will find a file named kv-secrets-reader.json which includes a custom RBAC role that will allow the function to retrieve the value of the secret stored in Key Vault. You will need to modify the assignable scopes of this file and subscription YOURSUBSCRIPTIONID for the id of the subscription you deployed the resources into.
 
-4. Deploy the lab using the command (tags parameter is optional): 
+1. Retrieve the subscription id of your subscription.
 
-   * **az deployment sub create --name $DEPLOYMENT_NAME --location $DEPLOYMENT_LOCATION --template-uri https://raw.githubusercontent.com/mattfeltonma/azure-labs/master/hub-and-spoke/azuredeploy.json --parameters location=$LOCATION vmAdminUsername=$ADMIN_USER_NAME keyVaultAdmin=$ADMIN_OBJECT_ID tags='{"mytag":"value"}'**
+    **az account show --query id --output=tsv**
 
-3.  You will be prompted to provide a password for the local administrator of the virtual machine. The username and password you set will be available to you as secrets in the "central" Key Vault provisioned as part of this lab.
+2. Modify the kv-secrets-reader.json file in the artifacts folder by replacing the YOURSUBSCRIPTIONID in the AssignableScopes section with the subscription id retrieved from last step.
 
-## Post Installation
-Once the lab is deployed, you can SSH into the Dev VM running in the hub using Azure Bastion.
+3. Create the new custom role. Substitute the RELATIVE_PATH_TO_FILE with the path to the kv-secrets-reader.json file you modified.
 
+    **az role definition create --role-definition RELATIVE_PATH_TO_FILE**
+
+    For example:
+
+    **az role definition create --role-definition artifacts/kv-secrets-reader.json**
+
+4. Before you can create the role assignment you will need the id of the resource group you created.
+
+    Create a variable with the resource group id. Substitute RESOURCE_GROUP_NAME with the resource group you deployed the resources to.
+
+    **RG_ID=$(az group show --name $RESOURCE_GROUP_NAME --query id --output=tsv)**
+
+5. Create the role assignment at the resource group scope.
+
+**az role assignment create --assignee-object-id $UMI_OBJECT_ID --role "Custom - Key Vault Secrets Reader" --scope $RG_ID**
+
+### Exercise 3
+You have now created an UMI, a custom RBAC role, and an assignment associating the role to the UMI at the resource group scope. The next step is to associate the UMI with the Azure Function.
+
+1. Before you can assign the UMI to the Function App, you will need to get the UMI's resource id.
+
+Run this command to place the resource id in a variable.
+
+**UMI_ID=$(az identity show --name demo-umi --resource-group $RESOURCE_GROUP_NAME --query id --output tsv)**
+
+2. Assign the UMI to the Function App. You will need to retrieve the name of the function that was auto-generated from the Azure Portal, CLI, or PowerShell.
+
+**az functionapp identity assign --resource-group test --name FUNCTION_NAME --identities $UMI_ID**
 

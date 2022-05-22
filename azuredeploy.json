@@ -22,7 +22,7 @@
                 "description": "The tags that will be associated to the resources"
             },
             "defaultValue": {
-                "environment": "lab"
+                "environment": "mi-demo"
             }
         },
         "uniqueData": {
@@ -204,6 +204,7 @@
                 "enabledForTemplateDeployment": false,
                 "enableSoftDelete": false,
                 "enablePurgeProtection": true,
+                "enableRbacAuthorization": true,
                 "networkAcls": {
                     "bypass": "AzureServices",
                     "virtualNetworkRules": [],
