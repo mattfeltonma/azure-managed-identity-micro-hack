@@ -63,9 +63,9 @@ In the first exercise you will create a user-assigned management identity (UMI).
 
     **az account set --subscription subscription_name**
 
-3. There are some variables that will be used throughout the micro-hack. Create a variable for your resource group name. Enter the name of the resource group you created in the placeholder of my-resource-group.
+3. There are some variables that will be used throughout the micro-hack. Create a variable for your resource group name. Enter the name of the resource group you created in the placeholder of myresourcegroupname.
 
-    **RESOURCE_GROUP_NAME=my-resource-group-name**
+    **RESOURCE_GROUP_NAME=myresourcegroupname**
 
 4. Create the user-assigned managed identity and name it demo-umi. 
 
@@ -89,7 +89,7 @@ In the first exercise you will create a user-assigned management identity (UMI).
 
 In this exercise you will create a custom RBAC role that allows for retreival of secrets from Azure Key Vault. You will then create a role assignment associating the custom role with the UMI and setting the scope as the resource group.
 
-In the artifacts folder of this repository you will find a file named kv-secrets-reader.json which includes a custom RBAC role that will allow the function to retrieve the value of the secret stored in Key Vault. You will need to modify the assignable scopes of this file and subscription YOURSUBSCRIPTIONID for the id of the subscription you deployed the resources into.
+In the artifacts folder of this repository you will find a file named kv-secrets-reader.json which includes a custom RBAC role that will allow the function to retrieve the value of the secret stored in Key Vault. You will need to modify the file and replace YOURSUBSCRIPTIONID with the the id of the subscription you deployed the resources into.
 
 1. Retrieve the subscription id of your subscription.
 
@@ -107,7 +107,7 @@ In the artifacts folder of this repository you will find a file named kv-secrets
 
 4. Before you can create the role assignment you will need the id of the resource group you created.
 
-    Create a variable with the resource group id. Substitute RESOURCE_GROUP_NAME with the resource group you deployed the resources to.
+    Create a variable with the resource group id. 
 
     **RG_ID=$(az group show --name $RESOURCE_GROUP_NAME --query id --output=tsv)**
 
