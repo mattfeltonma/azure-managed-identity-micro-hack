@@ -1,13 +1,15 @@
 # Managed Identity Micro-Hack
 
 ## Overview
-[Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) ease the burden of managing the credentials for the identities used by application components to authenticate Azure services and each other. These applications can be running in Azure or running in [on-premises or another cloud](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). Managed Identities come in two forms, [system-assigned and user-assigned](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). This micro-hack focuses on user-assigned managed identities because this type of managed identity commonly aligns with the way organizations handle their identity and access management processes.
+[Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) ease the burden of managing the credentials for the identities used by application components to authenticate Azure services and each other. These applications can be running in Azure or running in [on-premises or another cloud](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). Managed Identities come in two forms, [system-assigned and user-assigned](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). For a deep dive into the topic, check out [this blog post](https://journeyofthegeek.com/2019/08/07/deep-dive-into-azure-managed-identities-part-1/).
+
+This micro-hack focuses on user-assigned managed identities because this type of managed identity commonly aligns with the way organizations handle their identity and access management processes.
 
 The image below illustrates how a user-assigned managed identity is created and used.
 
 ![lab image](images/flow-general-diagram.png)
 
-This repository includes a code in the form of ARM templates and Azure CLI commands to walk you through how to create and use a managed identity. This micro-hack takes the "learn by doing" approach where the user will walk through the process of enabling an Azure Function with a managed identity in order for the function to retrieve a secret from an instance of Key Vault.
+This repository includes code in the form of ARM templates and Azure CLI commands to walk you through how to create and use a managed identity. This micro-hack takes the "learn by doing" approach where the user will walk through the process of enabling an Azure Function with a managed identity in order for the function to retrieve a secret from an instance of Key Vault.
 
 The end state architecture of this micro-hack is pictured below.
 
