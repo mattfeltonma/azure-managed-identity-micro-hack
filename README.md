@@ -23,6 +23,8 @@ The end state architecture of this micro-hack is pictured below.
 
 Before you begin the exercises, the lab environment must be deployed. The ARM templates within this repository will deploy an Azure Function, Azure Storage Account for the Function, an App Insights instance, an Azure Key Vault, and a secret within the Azure Key Vault.
 
+This [simple Python function](https://github.com/mattfeltonma/azure-function-example) will be deployed to the Azure Function. It calls a public API to get the current time and gets a secret from Key Vault.
+
 Deploy the lab environment by using the Deploy to Azure button below. Note that you must first create the resource group.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmattfeltonma%2Fazure-managed-identity-demo%2Fmain%2Fazuredeploy.json)
