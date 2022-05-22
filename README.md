@@ -1,21 +1,21 @@
-# Managed Identity Demo
+# Managed Identity Micro-Hack
 
 ## Overview
-[Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) ease the burden of managing the credentials for the identities used by application components to authenticate Azure services and each other. These applications can be running in Azure or running in [on-premises or another cloud](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). Managed Identities come in two forms, [system-assigned and user-assigned](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). This demonstration focuses on user-assigned managed identities because this type of managed identity betters aligns with the way organizations handle their identity and access management processes.
+[Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) ease the burden of managing the credentials for the identities used by application components to authenticate Azure services and each other. These applications can be running in Azure or running in [on-premises or another cloud](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). Managed Identities come in two forms, [system-assigned and user-assigned](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). This micro-hack focuses on user-assigned managed identities because this type of managed identity commonly aligns with the way organizations handle their identity and access management processes.
 
 The image below illustrates how a user-assigned managed identity is created and used.
 
 ![lab image](images/flow-general-diagram.png)
 
-This repository includes a code in the form of ARM templates and Azure CLI commands to walk you through how to create and use a managed identity. This demo takes the "learn by doing" approach where the user will walk through the process of enabling an Azure Function with a managed identity in order for the function to retrieve a secret from an instance of Key Vault.
+This repository includes a code in the form of ARM templates and Azure CLI commands to walk you through how to create and use a managed identity. This micro-hack takes the "learn by doing" approach where the user will walk through the process of enabling an Azure Function with a managed identity in order for the function to retrieve a secret from an instance of Key Vault.
 
-The end state architecture of this demo is pictured below.
+The end state architecture of this micro-hack is pictured below.
 
 ![lab image](images/demo-arch.svg)
 
 ## Prerequisites
 
-1. This demo will require you have sufficient permissions on the subscription to deploy resource groups, resources, and [create RBAC Roles and RBAC assignments](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview). It is recommended you do this on a non-production subscription where you hold the Owner role at the subscription level.
+1. This micro-hack will require you have sufficient permissions on the subscription to deploy resource groups, resources, and [create RBAC Roles and RBAC assignments](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview). It is recommended you do this on a non-production subscription where you hold the Owner role at the subscription level.
 
 2. You must have the az CLI commands installed and configured.
 
@@ -41,7 +41,7 @@ The function will deploy a result similar to the screenshot below.
 
 ![lab image](images/failed-function.png)
 
-The function is fails because it is unauthorized to get the secret from the Key Vault. You will resolve this problem through this demo.
+The function is fails because it is unauthorized to get the secret from the Key Vault. You will resolve this problem through this micro-hack.
 
 Before proceeding to the exercises, create a variable to store the Function name. Enter the name of your Function into the myfunction placeholder.
 
@@ -59,7 +59,7 @@ In the first exercise you will create a user-assigned management identity (UMI).
 
     **az account set --subscription subscription_name**
 
-3. There are some variables that will be used throughout the demo. Create a variable for your resource group name. Enter the name of the resource group you created in the placeholder of my-resource-group.
+3. There are some variables that will be used throughout the micro-hack. Create a variable for your resource group name. Enter the name of the resource group you created in the placeholder of my-resource-group.
 
     **RESOURCE_GROUP_NAME=my-resource-group-name**
 
@@ -139,7 +139,7 @@ It may take a few minutes for the new managed identity to take effect. Once you 
 ![lab image](images/successful-function.png)
 
 ## Conclusion
-In this demo you created an user-assigned managed identity (UMI), created a custom RBAC role and assigned it to the UMI, and you associated the UMI to the Azure Function. Congratulations!
+In this micro-hack you created an user-assigned managed identity (UMI), created a custom RBAC role and assigned it to the UMI, and you associated the UMI to the Azure Function. Congratulations!
 
 ![lab image](images/flow-demo-diagram.svg)
 
