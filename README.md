@@ -7,7 +7,7 @@ The image below illustrates how a user-assigned managed identity is created and 
 
 ![lab image](images/flow-general-diagram.png)
 
-This repository includes a code in the form of ARM templates and Azure CLI commands to walk you through how to create and use a managed identity. This demo takes the "learn by doing" approach where a concept will be explained and then you will exercise on the concept.
+This repository includes a code in the form of ARM templates and Azure CLI commands to walk you through how to create and use a managed identity. This demo takes the "learn by doing" approach where the user will walk through the process of enabling an Azure Function with a managed identity in order for the function to retrieve a secret from an instance of Key Vault.
 
 The end state architecture of this demo is pictured below.
 
@@ -21,17 +21,31 @@ The end state architecture of this demo is pictured below.
 
 ## Lab Setup
 
-Before you begin the exercises, the lab environment must be deployed. The ARM templates within this repository will deploy an Azure Function, Azure Storage Account for the Function, an Azure Key Vault, and a secret within the Azure Key Vault.
+Before you begin the exercises, the lab environment must be deployed. The ARM templates within this repository will deploy an Azure Function, Azure Storage Account for the Function, an App Insights instance, an Azure Key Vault, and a secret within the Azure Key Vault.
 
 Deploy the lab environment by using the Deploy to Azure button below. Note that you must first create the resource group.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmattfeltonma%2Fazure-managed-identity-demo%2Finitial%2Fazuredeploy.json)
 
-## Excercises
+## Test The Function
 
-### Exercise 1
+In this step you will test the Azure Function to ensure it deployed correctly.
 
-In this exercise you will validate that Function App deployed correctely.
+Open the Azure Portal and retrieve the name that was given to the function. It will have prefix of func with a random eight-character GUID appending it similar to appabcd1234.
+
+Open up a web browser and navigate to the function endpoint. The address will be:
+
+https://FUNCTIONNAME.azurewebsites.net/api/pythonsample.
+
+The function will deploy a result similar to the screenshot below.
+
+![lab image](images/failed-function.png)
+
+The function is fails because it is unauthorized to get the secret from the Key Vault. You will resolve this problem through this demo.
+
+Before proceeding to the exercises, create a variable to store the Function name. Enter the name of your Function into the myfunction placeholder.
+
+**FUNCTION_APP_NAME=myfunction**
 
 ### Exercise 1
 
@@ -49,9 +63,9 @@ In the first exercise you will create a user-assigned management identity (UMI).
 
     **RESOURCE_GROUP_NAME=my-resource-group-name**
 
-4. Create the user-assigned managed identity and name it demo-umi. Enter the name of the region you want to deploy the resources into the myregion placeholder. This should be deployed to the same region you deployed the rest of the resources to.
+4. Create the user-assigned managed identity and name it demo-umi. 
 
-    **az identity create --name demo-umi --location myregion --resource-group $RESOURCE_GROUP_NAME**
+    **az identity create --name demo-umi --resource-group $RESOURCE_GROUP_NAME**
 
     Take a moment and examine the properties returned. The clientId property maps to the appId attribute of the UMI's service principal in Azure AD. The principalId maps to the objectId of the UMI's service principal in Azure AD.
 
@@ -95,10 +109,10 @@ In the artifacts folder of this repository you will find a file named kv-secrets
 
 5. Create the role assignment at the resource group scope.
 
-**az role assignment create --assignee-object-id $UMI_OBJECT_ID --role "Custom - Key Vault Secrets Reader" --scope $RG_ID**
+**az role assignment create --assignee-object-id $UMI_OBJECT_ID --role "Custom - Key Vault Secrets Reader" --assignee-principal-type ServicePrincipal --scope $RG_ID**
 
 ### Exercise 3
-You have now created an UMI, a custom RBAC role, and an assignment associating the role to the UMI at the resource group scope. The next step is to associate the UMI with the Azure Function.
+You have now created an UMI, a custom RBAC role, and an assignment associating the role to the UMI at the resource group scope. The next step is to associate the UMI with the Azure Function. You will then populate the necessary application setting for the function.
 
 1. Before you can assign the UMI to the Function App, you will need to get the UMI's resource id.
 
@@ -106,7 +120,30 @@ Run this command to place the resource id in a variable.
 
 **UMI_ID=$(az identity show --name demo-umi --resource-group $RESOURCE_GROUP_NAME --query id --output tsv)**
 
-2. Assign the UMI to the Function App. You will need to retrieve the name of the function that was auto-generated from the Azure Portal, CLI, or PowerShell.
+2. Assign the UMI to the Function App.
 
-**az functionapp identity assign --resource-group test --name FUNCTION_NAME --identities $UMI_ID**
+**az functionapp identity assign --resource-group $RESOURCE_GROUP_NAME --name $FUNCTION_NAME --identities $UMI_ID**
+
+The last two steps are required due to the way the azure.identity library works in Python. When an UMI is being used, the method must specify the clientId of the UMI.
+
+3. Create a variable with the UMI's clientId value. This will be the value set for the application setting.
+
+    **UMI_CLIENT_ID=$(az identity show --name=demo-umi --resource-group $RESOURCE_GROUP_NAME --query=clientId --output=tsv)**
+
+4. Set the MSI_CLIENT_ID application setting with the clientId value of the application setting.
+
+    **az functionapp config appsettings set --name $FUNCTION_NAME --resource-group $RESOURCE_GROUP_NAME --settings "MSI_CLIENT_ID=$UMI_CLIENT_ID"**
+
+It may take a few minutes for the new managed identity to take effect. Once you are ready, access the function again from a web browser. If you've completed all of the steps successfully, the results will look similar to the screenshot below.
+
+![lab image](images/successful-function.png)
+
+## Conclusion
+In this demo you created an user-assigned managed identity (UMI), created a custom RBAC role and assigned it to the UMI, and you associated the UMI to the Azure Function. Congratulations!
+
+![lab image](images/flow-demo-diagram.svg)
+
+## Clean-up
+Delete the resource group to clean-up the resources created within this lab.
+
 
