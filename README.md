@@ -126,7 +126,7 @@ You have now created an UMI, a custom RBAC role, and an assignment associating t
 
 2. Assign the UMI to the Function App.
 
-**az functionapp identity assign --resource-group $RESOURCE_GROUP_NAME --name $FUNCTION_NAME --identities $UMI_ID**
+    **az functionapp identity assign --resource-group $RESOURCE_GROUP_NAME --name $FUNCTION_NAME --identities $UMI_ID**
 
 The last two steps are required due to the way the azure.identity library works in Python. When an UMI is being used, the method must specify the clientId of the UMI.
 
@@ -143,7 +143,7 @@ It may take a few minutes for the new managed identity to take effect. Once you 
 ![lab image](images/successful-function.png)
 
 ## Conclusion
-In this micro-hack you created an user-assigned managed identity (UMI), created a custom RBAC role and assigned it to the UMI, and you associated the UMI to the Azure Function. Congratulations!
+In this micro-hack you created an user-assigned managed identity (UMI), created a custom RBAC role and assigned it to the UMI, and you associated the UMI to the Azure Function.
 
 ![lab image](images/flow-demo-diagram.svg)
 
