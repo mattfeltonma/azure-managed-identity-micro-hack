@@ -1,13 +1,15 @@
 # Managed Identity Micro-Hack
 
 ## Overview
-[Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) ease the burden of managing the credentials for the identities used by application components to authenticate Azure services and each other. These applications can be running in Azure or running in [on-premises or another cloud](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). Managed Identities come in two forms, [system-assigned and user-assigned](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). This micro-hack focuses on user-assigned managed identities because this type of managed identity commonly aligns with the way organizations handle their identity and access management processes.
+[Managed Identities](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) ease the burden of managing the credentials for the identities used by application components to authenticate Azure services and each other. These applications can be running in Azure or running in [on-premises or another cloud](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). Managed Identities come in two forms, [system-assigned and user-assigned](https://docs.microsoft.com/en-us/azure/azure-arc/servers/managed-identity-authentication). For a deep dive into the topic, check out [this blog post](https://journeyofthegeek.com/2019/08/07/deep-dive-into-azure-managed-identities-part-1/).
+
+This micro-hack focuses on user-assigned managed identities because this type of managed identity commonly aligns with the way organizations handle their identity and access management processes.
 
 The image below illustrates how a user-assigned managed identity is created and used.
 
 ![lab image](images/flow-general-diagram.png)
 
-This repository includes a code in the form of ARM templates and Azure CLI commands to walk you through how to create and use a managed identity. This micro-hack takes the "learn by doing" approach where the user will walk through the process of enabling an Azure Function with a managed identity in order for the function to retrieve a secret from an instance of Key Vault.
+This repository includes code in the form of ARM templates and Azure CLI commands to walk you through how to create and use a managed identity. This micro-hack takes the "learn by doing" approach where the user will walk through the process of enabling an Azure Function with a managed identity in order for the function to retrieve a secret from an instance of Key Vault.
 
 The end state architecture of this micro-hack is pictured below.
 
@@ -85,7 +87,7 @@ In the first exercise you will create a user-assigned management identity (UMI).
 
 ### Exercise 2
 
-In this exercise you will create a custom RBAC role that allows for getting secrets from Azure Key Vault. You will then create a role assignment associating the custom role with the UMI and setting the scope as the resource group.
+In this exercise you will create a custom RBAC role that allows for retreival of secrets from Azure Key Vault. You will then create a role assignment associating the custom role with the UMI and setting the scope as the resource group.
 
 In the artifacts folder of this repository you will find a file named kv-secrets-reader.json which includes a custom RBAC role that will allow the function to retrieve the value of the secret stored in Key Vault. You will need to modify the assignable scopes of this file and subscription YOURSUBSCRIPTIONID for the id of the subscription you deployed the resources into.
 
@@ -124,7 +126,7 @@ You have now created an UMI, a custom RBAC role, and an assignment associating t
 
 2. Assign the UMI to the Function App.
 
-**az functionapp identity assign --resource-group $RESOURCE_GROUP_NAME --name $FUNCTION_NAME --identities $UMI_ID**
+    **az functionapp identity assign --resource-group $RESOURCE_GROUP_NAME --name $FUNCTION_NAME --identities $UMI_ID**
 
 The last two steps are required due to the way the azure.identity library works in Python. When an UMI is being used, the method must specify the clientId of the UMI.
 
@@ -141,7 +143,7 @@ It may take a few minutes for the new managed identity to take effect. Once you 
 ![lab image](images/successful-function.png)
 
 ## Conclusion
-In this micro-hack you created an user-assigned managed identity (UMI), created a custom RBAC role and assigned it to the UMI, and you associated the UMI to the Azure Function. Congratulations!
+In this micro-hack you created an user-assigned managed identity (UMI), created a custom RBAC role and assigned it to the UMI, and you associated the UMI to the Azure Function.
 
 ![lab image](images/flow-demo-diagram.svg)
 
