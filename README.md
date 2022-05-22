@@ -116,9 +116,9 @@ You have now created an UMI, a custom RBAC role, and an assignment associating t
 
 1. Before you can assign the UMI to the Function App, you will need to get the UMI's resource id.
 
-Run this command to place the resource id in a variable.
+    Run this command to place the resource id in a variable.
 
-**UMI_ID=$(az identity show --name demo-umi --resource-group $RESOURCE_GROUP_NAME --query id --output tsv)**
+    **UMI_ID=$(az identity show --name demo-umi --resource-group $RESOURCE_GROUP_NAME --query id --output tsv)**
 
 2. Assign the UMI to the Function App.
 
