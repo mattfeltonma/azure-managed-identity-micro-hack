@@ -113,7 +113,7 @@ In the artifacts folder of this repository you will find a file named kv-secrets
 
 5. Create the role assignment at the resource group scope.
 
-**az role assignment create --assignee-object-id $UMI_OBJECT_ID --role "Custom - Key Vault Secrets Reader" --assignee-principal-type ServicePrincipal --scope $RG_ID**
+    **az role assignment create --assignee-object-id $UMI_OBJECT_ID --role "Custom - Key Vault Secrets Reader" --assignee-principal-type ServicePrincipal --scope $RG_ID**
 
 ### Exercise 3
 You have now created an UMI, a custom RBAC role, and an assignment associating the role to the UMI at the resource group scope. The next step is to associate the UMI with the Azure Function. You will then populate the necessary application setting for the function.
